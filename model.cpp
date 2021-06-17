@@ -8,21 +8,29 @@
 
 #define deg(w)      ((w) * 180 / M_PI)
 
-float mass    = 2;    // kg
+const float Mass    = 2;    // kg
+const float MoI     = 0.5;  // kg
+const float Length  = 1;    // meter
+
 float thrust  = 3;    // newton
-float length  = 1;    // meter
 
 //   x
 //   |  z
 //   | /
 //   |/____ y
 
+enum { Linear, Angular };
+
 struct Vec_s {
     const char *desc;
 
-    float   acc;
-    float   vel;
-    float   pos;
+    int     type;
+
+    float   mass;       // or moment of inertia
+
+    float   acc;        // or angualar acceleration
+    float   vel;        // or angualar velocity
+    float   pos;        // or angualar position
 
     float   radAcc;
     float   radVel;
@@ -32,22 +40,32 @@ struct Vec_s {
     float   force;
 };
 
-Vec_s  x = { "x" };     // rocket vector
-Vec_s  y = { "y" };     // rocket vector
-Vec_s  z = { "z" };     // rocket vector
+Vec_s  x = { "x", Linear,  Mass };
+Vec_s  y = { "y", Angular, MoI  };
+Vec_s  z = { "z", Angular, MoI  };
 
-Vec_s  alphaY, betaZ;   // thrust (gimbal) vector
+float  alphaY, alphaZ;   // thrust (gimbal) vector
 
 // -----------------------------------------------------------------------------
 void
 disp (
     Vec_s  &v )
 {
-    printf (" | %5.2f p", v.pos);
-    printf ("  %5.2f v", v.vel);
-    printf ("  %5.2f a", v.acc);
-    printf ("  %5.2f F", v.force);
-    printf ("  %s",     v.desc);
+    printf (" |");
+    printf (" %s",       v.desc);
+    
+    if (Linear == v.type)  {
+        printf (" %5.2f m",     v.pos);
+        printf (" %5.2f m/s",   v.vel);
+        printf (" %5.2f m/s/s", v.acc);
+    }
+    else  {
+        printf (" %5.1f deg",   deg(v.pos));
+        printf (" %5.2f r/s",   v.vel);
+        printf (" %5.2f r/s/s", v.acc);
+    }
+
+    printf ("  %5.2f F",  v.force);
 }
 
 // -----------------------------------------------------------------------------
@@ -58,7 +76,7 @@ update (
     int     dMsec )
 {
     v.force   = force;
-    v.acc     = v.force / mass; 
+    v.acc     = v.force / v.mass; 
     v.vel    += v.acc * dMsec / 1000;
     v.pos    += v.vel * dMsec / 1000;
 }
@@ -69,13 +87,13 @@ model (     // 2d model
     int  dMsec )
 {
     float wY;
-    wY    = atan2 (y.vel, x.vel);     // trajectory
+    wY    = y.pos;             // angle of rotation Y plane
     wY    = 0.2 * (random () - (RAND_MAX / 2)) / RAND_MAX;;
 
-    printf ("%s: %6.1f angY", __func__, deg(alphaY.w + wY));
+    printf ("%s: %6.1f angY", __func__, deg(alphaY + wY));
 
-    update (x, thrust * cos (alphaY.w + wY), dMsec);
-    update (y, thrust * sin (alphaY.w + wY), dMsec);
+    update (x, thrust * cos (alphaY + wY), dMsec);
+    update (y, thrust * sin (alphaY + wY), dMsec);
 
     // doesn't consider rotation
 

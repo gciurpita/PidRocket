@@ -11,7 +11,7 @@ $(Obj)/%.o : %.cpp
 
 # --------------------------------------------------------------------
 all : $(Targ)
-	$(Targ) $(Targ).cmd
+	$(Targ) $(Targ).cmd | tee $(Targ).txt
 
 $(Targ) : $(Obj) $(Objs)
 	$(CXX) -o $(Targ) $(Objs) $(LIBS)

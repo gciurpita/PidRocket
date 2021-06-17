@@ -26,15 +26,19 @@ application (char *filename)  {
         exit (1);
     }
 
-    int  arg1;
+    int  arg1, arg2;
+
     while (fgets (s, BUFSIZ, fp) != NULL)  {
         printf ("%s", s);
 
         if (strstr (s, "step"))  {
-            sscanf (s, "%*s %d", & arg1);
+            if (2 != sscanf (s, "%*s %d %d", & arg1, &arg2))  {
+                fprintf (stderr, " %s: Error - step nStep dMsec\n", __func__);
+                exit (1);
+            }
 
             while (arg1--)
-                model (1);
+                model (arg2);
         }
     }
 }
