@@ -10,8 +10,13 @@ $(Obj)/%.o : %.cpp
 	$(CXX) $(CFLAGS) -c -o $@ $^
 
 # --------------------------------------------------------------------
-all : $(Targ)
-	$(Targ) $(Targ).cmd | tee $(Targ).txt
+all : $(Targ).xgr
+
+$(Targ).xgr : $(Targ).txt $(Targ).k
+	$(Targ).k $(Targ).txt > $@
+
+$(Targ).txt : $(Targ)
+	$(Targ) $(Targ).cmd | tee $@
 
 $(Targ) : $(Obj) $(Objs)
 	$(CXX) -o $(Targ) $(Objs) $(LIBS)
