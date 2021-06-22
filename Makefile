@@ -33,4 +33,4 @@ neat :
 	rm -f *~ *stackdump
 
 clean : neat
-	rm -rf $(Obj) *.exe
+	rm -rf $(Obj) *.exe *.txt *.xgr
