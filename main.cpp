@@ -37,8 +37,10 @@ application (char *filename)  {
                 exit (1);
             }
 
-            while (arg1--)
+            while (arg1--)  {
                 model (arg2);
+                pidRocket (arg2, modelGetYdeg ());
+            }
         }
     }
 }

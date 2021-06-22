@@ -62,12 +62,12 @@ disp (
         printf (" %5.2f m/s/s", v.acc);
     }
     else  {
-        printf (" %5.1f deg",   deg(v.pos));
+        printf (" %8.4f deg",   deg(v.pos));
         printf (" %5.2f r/s",   v.vel);
-        printf (" %5.2f r/s/s", v.acc);
+        printf (" %6.2f r/s/s", v.acc);
     }
 
-    printf ("  %5.2f F",  v.force);
+    printf ("  %6.3f F",  v.force);
 }
 
 // -----------------------------------------------------------------------------
@@ -106,21 +106,18 @@ model (     // 2d model
     static int timeMsec  = 0;
                timeMsec += dMsec;
 
-    float wY;
-    wY    = y.pos;             // angle of rotation Y plane
+    float randY = 0;
 #if 1
     if (! (timeMsec % 500))
-        wY   += 0.2 * (random () - (RAND_MAX / 2)) / RAND_MAX;;
+        randY = 0.02 * (random () - (RAND_MAX / 2)) / RAND_MAX;;
 #endif
 
-#if 0
-    printf ("%s: %6.1f angY", __func__, deg(alphaY + wY));
-#else
-    printf ("%s: %6.1f angY", __func__, deg(wY));
-#endif
+    printf ("%s:", __func__);
+    printf (" %6.2f alpha",  deg(alphaY));
+    printf (" %6.2f rndY",   deg(randY));
 
-    _update (x, thrust * cos (alphaY + wY), dMsec);
-    _update (y, thrust * sin (alphaY + wY), dMsec);
+    _update (x, thrust * cos (alphaY + y.pos), dMsec);
+    _update (y, thrust * sin (alphaY + randY), dMsec);
 
     // doesn't consider rotation
 
