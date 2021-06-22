@@ -7,6 +7,7 @@
 #include "math.h"
 
 #define deg(w)      ((w) * 180 / M_PI)
+#define rad(w)      ((w) * M_PI / 180)
 
 const float Mass    = 2;    // kg
 const float Length  = 1;    // meter
@@ -44,7 +45,8 @@ Vec_s  x = { "x", Linear,  Mass };
 Vec_s  y = { "y", Angular, MoI  };
 Vec_s  z = { "z", Angular, MoI  };
 
-float  alphaY, alphaZ;   // thrust (gimbal) vector
+float  alphaY = 0;   // thrust (gimbal) vector
+float  alphaZ = 0;
 
 // -----------------------------------------------------------------------------
 void
@@ -70,7 +72,7 @@ disp (
 
 // -----------------------------------------------------------------------------
 void
-update (
+_update (
     Vec_s  &v,
     float   force,
     int     dMsec )
@@ -82,18 +84,43 @@ update (
 }
 
 // -----------------------------------------------------------------------------
+float
+modelGetYdeg (void)
+{
+    return deg(y.pos);
+}
+
+// -----------------------------------------------------------------------------
+void
+modelSetAlphaYdeg (
+    float  ang )
+{
+    alphaY = rad(ang);
+}
+
+// -----------------------------------------------------------------------------
 void
 model (     // 2d model
     int  dMsec )
 {
+    static int timeMsec  = 0;
+               timeMsec += dMsec;
+
     float wY;
     wY    = y.pos;             // angle of rotation Y plane
-    wY    = 0.2 * (random () - (RAND_MAX / 2)) / RAND_MAX;;
+#if 1
+    if (! (timeMsec % 500))
+        wY   += 0.2 * (random () - (RAND_MAX / 2)) / RAND_MAX;;
+#endif
 
+#if 0
     printf ("%s: %6.1f angY", __func__, deg(alphaY + wY));
+#else
+    printf ("%s: %6.1f angY", __func__, deg(wY));
+#endif
 
-    update (x, thrust * cos (alphaY + wY), dMsec);
-    update (y, thrust * sin (alphaY + wY), dMsec);
+    _update (x, thrust * cos (alphaY + wY), dMsec);
+    _update (y, thrust * sin (alphaY + wY), dMsec);
 
     // doesn't consider rotation
 
