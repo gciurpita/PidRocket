@@ -9,8 +9,8 @@
 #define deg(w)      ((w) * 180 / M_PI)
 
 const float Mass    = 2;    // kg
-const float MoI     = 0.5;  // kg
 const float Length  = 1;    // meter
+const float MoI     = (Mass / (Length * Length)) / 12;  // kg
 
 float thrust  = 3;    // newton
 
